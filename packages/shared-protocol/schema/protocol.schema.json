@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yoctostudio.dev/schemas/protocol.schema.json",
+  "title": "Yocto Studio JSON-RPC 2.0 Protocol",
+  "description": "Canonical JSON-RPC 2.0 request/response/notification contract shared across React/TypeScript, Rust Tauri v2, and Python yocto-bridge.",
+  "type": "object",
+  "$defs": {
+    "ErrorCode": {
+      "type": "integer",
+      "enum": [-32700, -32600, -32601, -32602, -32603, -32001, -32002, -32003, -32004, -32005]
+    },
+    "JsonRpcRequest": {
+      "type": "object",
+      "required": ["jsonrpc", "id", "method"],
+      "properties": {
+        "jsonrpc": { "const": "2.0" },
+        "id": { "type": ["string", "integer"] },
+        "method": { "type": "string" },
+        "params": { "type": "object" }
+      }
+    },
+    "JsonRpcError": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": { "$ref": "#/$defs/ErrorCode" },
+        "message": { "type": "string" },
+        "data": {}
+      }
+    },
+    "JsonRpcSuccessResponse": {
+      "type": "object",
+      "required": ["jsonrpc", "id", "result"],
+      "properties": {
+        "jsonrpc": { "const": "2.0" },
+        "id": { "type": ["string", "integer"] },
+        "result": {}
+      }
+    },
+    "JsonRpcErrorResponse": {
+      "type": "object",
+      "required": ["jsonrpc", "id", "error"],
+      "properties": {
+        "jsonrpc": { "const": "2.0" },
+        "id": { "type": ["string", "integer", "null"] },
+        "error": { "$ref": "#/$defs/JsonRpcError" }
+      }
+    },
+    "JsonRpcNotification": {
+      "type": "object",
+      "required": ["jsonrpc", "method", "params"],
+      "properties": {
+        "jsonrpc": { "const": "2.0" },
+        "method": { "type": "string" },
+        "params": { "type": "object" }
+      }
+    },
+    "ProviderKind": {
+      "type": "string",
+      "enum": ["mock", "wsl2", "docker", "ssh", "local"]
+    },
+    "BuildStatus": {
+      "type": "string",
+      "enum": ["idle", "running", "succeeded", "failed", "cancelled"]
+    }
+  }
+}

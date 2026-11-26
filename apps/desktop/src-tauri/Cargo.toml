@@ -1,0 +1,43 @@
+[package]
+name = "yocto-studio"
+version = "1.1.0"
+description = "Yocto Studio — Native-performance desktop GUI for Yocto Project 6.0 Wrynose & 5.0 Scarthgap"
+authors = ["Yocto Studio Contributors"]
+edition = "2021"
+rust-version = "1.80"
+
+[lib]
+name = "yocto_studio_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-updater = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+thiserror = "2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1", features = ["v4"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+sysinfo = "0.33"
+portable-pty = "0.8"
+sha2 = "0.10"
+hex = "0.4"
+shell-words = "1.1"
+flate2 = "1"
+bzip2-rs = "0.1"
+ruzstd = "0.7"
+serialport = { version = "4", default-features = false }
+chrono = { version = "0.4", features = ["clock"] }
+reqwest = { version = "0.13", features = ["json"] }
+
+[target.'cfg(windows)'.dependencies]
+keyring = { version = "3", features = ["windows-native"] }

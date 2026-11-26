@@ -1,0 +1,68 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Yocto Studio",
+  "version": "1.1.0",
+  "identifier": "dev.yoctostudio.desktop",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "pnpm --filter @yocto-studio/shared-protocol build && pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Yocto Studio — Yocto 6.0 Wrynose / 5.0 Scarthgap",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1100,
+        "minHeight": 700,
+        "backgroundColor": "#0B0E14",
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' ws://127.0.0.1:* http://127.0.0.1:* ws://localhost:* http://localhost:* https://api.github.com https://github.com"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "shortDescription": "Cross-Platform Yocto 6.0 Wrynose & 5.0 Scarthgap IDE",
+    "longDescription": "Yocto Studio — Windows WSL2/Docker ve Native Linux için modern Yocto geliştirme ortamı.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico",
+      "icons/icon.png"
+    ],
+    "resources": {
+      "../../../packages/yocto-bridge/bridge": "yocto-bridge/bridge"
+    },
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "nsis": {
+        "installMode": "currentUser"
+      },
+      "wix": {
+        "language": "en-US"
+      }
+    },
+    "linux": {
+      "deb": {
+        "depends": ["python3", "openssh-client"]
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IFlvY3RvIFN0dWRpbyBwbGFjZWhvbGRlciBwdWJsaWMga2V5IEExQjJDM0Q0RTVGNjA3MDgKUldTaHNzUFU1ZllIQ0FBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUEK",
+      "endpoints": [
+        "https://github.com/UfkuAcik/Yocto-Project-GUI/releases/latest/download/latest.json"
+      ]
+    }
+  }
+}

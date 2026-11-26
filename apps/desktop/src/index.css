@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-bg: var(--ys-bg);
+  --color-surface: var(--ys-surface);
+  --color-elevated: var(--ys-elevated);
+  --color-border: var(--ys-border);
+  --color-fg: var(--ys-fg);
+  --color-muted: var(--ys-muted);
+  --color-accent: var(--ys-accent);
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+}
+
+:root {
+  --ys-bg: #f8fafc;
+  --ys-surface: #ffffff;
+  --ys-elevated: #f1f5f9;
+  --ys-border: #e2e8f0;
+  --ys-fg: #0f172a;
+  --ys-muted: #475569;
+  --ys-accent: #0284c7;
+}
+
+html.dark {
+  --ys-bg: #0b0e14;
+  --ys-surface: #131822;
+  --ys-elevated: #181f2c;
+  --ys-border: #222b3a;
+  --ys-fg: #e2e8f0;
+  --ys-muted: #94a3b8;
+  --ys-accent: #38bdf8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-sans);
+}
+
+.mono-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ys-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ys-muted);
+}

@@ -1,0 +1,20 @@
+{
+  "name": "yocto-studio-monorepo",
+  "version": "1.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:bridge": "node scripts/run-bridge.mjs serve --mock --host 127.0.0.1 --port 18765",
+    "dev:desktop": "pnpm --filter @yocto-studio/desktop dev",
+    "dev:tauri": "pnpm --filter @yocto-studio/desktop tauri dev",
+    "build": "pnpm --filter @yocto-studio/shared-protocol build && pnpm --filter @yocto-studio/desktop build",
+    "typecheck": "pnpm --filter @yocto-studio/shared-protocol build && pnpm --filter @yocto-studio/desktop typecheck",
+    "test:bridge": "node scripts/run-bridge.mjs test",
+    "lint:bridge": "node scripts/run-bridge.mjs lint",
+    "test:rust": "cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml",
+    "check:all": "pnpm lint:bridge && pnpm test:bridge && pnpm typecheck && pnpm build && pnpm test:rust"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.65.1"
+  }
+}

@@ -1,0 +1,34 @@
+name: Feature Request
+description: Propose a new board profile, Pre-Flight rule, or Yocto workflow capability
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Module / Subsystem
+      options:
+        - Environment & Providers (WSL2 / Docker / SSH)
+        - Workspace, Layers & Config Studio
+        - Recipe IDE & devtool
+        - Build Engine & Task DAG
+        - Target Deploy (USB / Ethernet / UART)
+        - Pre-Flight Inspector & Image Advisor
+        - Pro Suite (Kernel/DT, QA, CRA, AI, CI/CD)
+        - Enterprise (Multiconfig, Air-Gapped, Treemap, Cross-Debug, Migration)
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Engineering Motivation
+      description: What Yocto workflow pain point does this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Describe the expected CLI/BitBake integration and UI behavior.
+    validations:
+      required: true

@@ -1,0 +1,140 @@
+name: Release (Signed Bundles & Auto-Updater)
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag (e.g. v1.1.0)"
+        required: false
+        default: "v1.1.0"
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    name: Pre-Release Verification (Python + Frontend)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Python Ruff & Pytest
+        working-directory: packages/yocto-bridge
+        run: |
+          python -m pip install --upgrade pip pytest pytest-asyncio ruff
+          ruff check .
+          pytest -v
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - name: Frontend Vitest & Build
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter @yocto-studio/shared-protocol build
+          pnpm --filter @yocto-studio/desktop test
+          pnpm --filter @yocto-studio/desktop build
+
+  build-release:
+    name: Build & Publish (${{ matrix.platform }})
+    needs: [verify]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            bundles: "nsis,msi"
+          - platform: ubuntu-22.04
+            bundles: "appimage,deb"
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri
+
+      - name: Install Linux Tauri dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libudev-dev \
+            pkg-config \
+            libssl-dev \
+            libgtk-3-dev
+
+      - name: Install workspace JS dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Determine Tauri updater signing flag
+        id: sign_check
+        shell: bash
+        env:
+          HAS_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY != '' }}
+        run: |
+          if [ "$HAS_KEY" = "true" ]; then
+            printf '{"bundle":{"createUpdaterArtifacts":true}}\n' > apps/desktop/src-tauri/tauri.updater.conf.json
+            echo "args=--bundles ${{ matrix.bundles }} --config src-tauri/tauri.updater.conf.json" >> "$GITHUB_OUTPUT"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "args=--bundles ${{ matrix.bundles }}" >> "$GITHUB_OUTPUT"
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build & Upload Tauri v2 Bundles (.msi / .exe / .AppImage / .deb + latest.json)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: apps/desktop
+          tagName: ${{ inputs.tag_name || github.ref_name }}
+          releaseName: "Yocto Studio ${{ inputs.tag_name || github.ref_name }}"
+          releaseBody: |
+            ## Yocto Studio ${{ inputs.tag_name || github.ref_name }}
+            Cross-platform embedded Linux engineering IDE for Yocto Project 6.0 Wrynose & 5.0 Scarthgap.
+
+            - **Windows:** `.msi` / `.exe` (NSIS)
+            - **Linux:** `.AppImage` / `.deb`
+            - **Auto-Updater:** Live Tauri v2 `latest.json` manifest (when `TAURI_SIGNING_PRIVATE_KEY` is configured)
+          releaseDraft: false
+          prerelease: false
+          args: ${{ steps.sign_check.outputs.args }}
+
+  publish-checksums:
+    name: Publish SHA256SUMS.txt
+    needs: [build-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate and attach SHA256SUMS.txt to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ inputs.tag_name || github.ref_name }}
+        run: |
+          mkdir -p release-assets
+          gh release download "$TAG_NAME" --repo "${{ github.repository }}" --dir release-assets --pattern "*.msi" --pattern "*.exe" --pattern "*.AppImage" --pattern "*.deb" --pattern "latest.json" || true
+          if [ "$(ls -A release-assets)" ]; then
+            (cd release-assets && sha256sum * > SHA256SUMS.txt)
+            gh release upload "$TAG_NAME" release-assets/SHA256SUMS.txt --repo "${{ github.repository }}" --clobber
+          fi

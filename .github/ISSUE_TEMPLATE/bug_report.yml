@@ -1,0 +1,66 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in Yocto Studio
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for reporting an issue! Please provide environment details so we can reproduce it cleanly.
+  - type: dropdown
+    id: os
+    attributes:
+      label: Host Operating System
+      options:
+        - Windows 11 (WSL2)
+        - Windows 10 (WSL2)
+        - Windows (Docker / CROPS)
+        - Native Linux (Ubuntu / Debian / Fedora)
+        - macOS
+    validations:
+      required: true
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Execution Provider / Mode
+      options:
+        - WSL2 (ext4)
+        - Docker / CROPS / kas
+        - Remote SSH
+        - Native Linux Local
+        - Mock Mode
+    validations:
+      required: true
+  - type: dropdown
+    id: yocto
+    attributes:
+      label: Yocto Release
+      options:
+        - Yocto 6.0 (Wrynose)
+        - Yocto 5.0 (Scarthgap LTS)
+        - Yocto 4.0 (Kirkstone LTS / Migration)
+        - Not applicable / Mock Mode
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: Clear description of what happened and what you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open module '...'
+        2. Click '...'
+        3. Observe error...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs (auto-redacted / sanitized)
+      description: Paste relevant bridge or console output. Remove any tokens or private hostnames.
+      render: shell

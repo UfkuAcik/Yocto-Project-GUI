@@ -1,0 +1,38 @@
+# Dependencies & JS builds
+node_modules/
+dist/
+build/
+.pnpm-store/
+
+# Rust / Tauri build artifacts
+target/
+src-tauri/target/
+apps/desktop/src-tauri/target/
+
+# Python virtualenvs & caches
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+
+# Local databases, logs & runtime caches
+*.db
+*.db-wal
+*.db-shm
+*.sqlite*
+*.log
+staging/
+*.yoctostudio
+*.yoctostudio.zip
+
+# Secrets & environment files
+.env
+.env.*
+*.key
+*.pem
+
+# OS metadata
+.DS_Store
+Thumbs.db
